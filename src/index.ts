@@ -17,6 +17,14 @@ type Schedule = {
 
 }
 
+type Feeding = {
+
+}
+
+type HusbandryRecord = {
+
+}
+
 type CreateUserBody = {
     firstName: string,
     lastName: string,
@@ -158,7 +166,7 @@ app.post('/reptile', async (req, res) => {
     where: {
       id: userId
     }
-  }) as User;
+  });
   if (user == null) return;
   const reptile = await client.reptile.create({
     data: {
@@ -180,11 +188,56 @@ app.post('/reptile', async (req, res) => {
   res.json({ reptile });
 });
 
+type DeleteReptileBody = {
+  id: number
+}
+
 // delete reptile
+app.delete('/reptile', async (req, res) => {
+  const {id} = req.body as DeleteReptileBody;
+  const deleted = await client.reptile.delete({
+    where: {
+      id
+    }
+  });
+  res.status(204).json({});
+});
 
+type PutReptileBody = {
+  id: number,
+  species: string,
+  name: string,
+  sex: string,
+}
 // put reptile
+app.put('/reptile', async (req, res) => {
+  const {id, species, name, sex} = req.body as PutReptileBody;
+  const reptile = await client.reptile.update({
+    where: {
+      id
+    },
+    data: {
+      species,
+      name,
+      sex
+    }
+  });
+  res.json({reptile})
+});
 
+type GetReptileBody = {
+  userId: number
+}
 // get reptiles
+app.get('/reptile', async (req, res) => {
+  const {userId} = req.body as GetReptileBody;
+  const reptiles = await client.reptile.findMany({
+    where: {
+      userId 
+    }
+  });
+  res.json(reptiles);
+});
 
 // #endregion
 
