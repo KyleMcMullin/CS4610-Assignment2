@@ -188,13 +188,9 @@ app.post('/reptile', async (req, res) => {
   res.json({ reptile });
 });
 
-type DeleteReptileBody = {
-  id: number
-}
-
 // delete reptile
-app.delete('/reptile', async (req, res) => {
-  const {id} = req.body as DeleteReptileBody;
+app.delete('/reptile/:id', async (req, res) => {  
+  const id = parseInt(req.params.id);
   const deleted = await client.reptile.delete({
     where: {
       id
@@ -204,14 +200,14 @@ app.delete('/reptile', async (req, res) => {
 });
 
 type PutReptileBody = {
-  id: number,
   species: string,
   name: string,
   sex: string,
 }
 // put reptile
-app.put('/reptile', async (req, res) => {
-  const {id, species, name, sex} = req.body as PutReptileBody;
+app.put('/reptile/:id', async (req, res) => {
+  const {species, name, sex} = req.body as PutReptileBody;
+  const id = parseInt(req.params.id);
   const reptile = await client.reptile.update({
     where: {
       id
@@ -225,12 +221,9 @@ app.put('/reptile', async (req, res) => {
   res.json({reptile})
 });
 
-type GetReptileBody = {
-  userId: number
-}
 // get reptiles
-app.get('/reptile', async (req, res) => {
-  const {userId} = req.body as GetReptileBody;
+app.get('/reptile/:userId', async (req, res) => {
+  const userId = parseInt(req.params.userId);
   const reptiles = await client.reptile.findMany({
     where: {
       userId 
