@@ -124,6 +124,8 @@ app.post("/sessions",  async (req, res) => {
     httpOnly: true,
     maxAge: 60000 * 10
   })
+
+  res.json({ session });
 });
 
 app.get("/me", async (req: RequestWithSession, res) => {
@@ -132,7 +134,7 @@ app.get("/me", async (req: RequestWithSession, res) => {
   } else {
     res.status(401).json({ message: "unauthorized"});
   }
-})
+});
 
 app.get("/", (req, res) => {
   res.send(`<h1>Hello, world!</h1>`);
