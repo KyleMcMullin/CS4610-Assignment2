@@ -32,6 +32,9 @@ type RequestWithSession = Request & {
   user?: User
 }
 
+// #region Authentication
+
+
 const authenticationMiddleware: RequestHandler = async (req: RequestWithSession, res, next) => {
   const sessionToken = req.cookies["session-token"];
   if (sessionToken) {
@@ -135,6 +138,55 @@ app.get("/me", async (req: RequestWithSession, res) => {
     res.status(401).json({ message: "unauthorized"});
   }
 });
+
+// #endregion
+
+// #region Reptiles
+
+// post create reptile
+
+type CreateReptileBody = {
+  userId: number,
+  species: string,
+  name: string,
+  sex: string
+}
+
+app.post('/reptile', async (req, res) => {
+  const {userId, species, name, sex} = req.body as CreateReptileBody;
+  const user = await client.user.findFirst({
+    where: {
+      id: userId
+    }
+  }) as User;
+  if (user == null) return;
+  const reptile = await client.reptile.create({
+    data: {
+      userId,
+      species,
+      name,
+      sex,
+      feedings: {
+        create: []
+      },
+      schedules: {
+        create: []
+      },
+      husbandryRecords: {
+        create: []
+      }
+    }
+  });
+  res.json({ reptile });
+});
+
+// delete reptile
+
+// put reptile
+
+// get reptiles
+
+// #endregion
 
 app.get("/", (req, res) => {
   res.send(`<h1>Hello, world!</h1>`);
