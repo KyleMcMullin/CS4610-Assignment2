@@ -9,9 +9,6 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-interface AuthRequest extends Request {
-  user?: any; // replace 'any' with the type of your user object
-}
 
 type Reptile = {
   id: number,
@@ -87,8 +84,11 @@ const authenticationMiddleware: RequestHandler = async (req: RequestWithSession,
       req.user = session.user;
     }
   }
+  // provide a default value for req.user
+  req.user = req.user || undefined;
   next();
-}
+};
+
 
 app.use(authenticationMiddleware);
 
@@ -259,16 +259,21 @@ app.get('/reptile/:userId', async (req, res) => {
   });
   res.json(reptiles);
 });
+// #endregion
+
+
+// #region Schedules
 
 // create schedule for a reptile
-app.post('/reptile/:reptileId/schedules', async (req, res) => {
+app.post('/reptile/:userId/:reptileId/schedules', async (req, res) => {
   const reptileId = parseInt(req.params.reptileId);
+  const userId = parseInt(req.params.userId);
   const { type, description, monday, tuesday, wednesday, thursday, friday, saturday, sunday } = req.body as Schedule;
   
   const schedule = await client.schedule.create({
     data: {
       reptileId,
-      userId: req.user?.id,
+      userId,
       type,
       description,
       monday,
@@ -296,17 +301,17 @@ app.get('/reptile/:reptileId/schedules', async (req, res) => {
 });
 
 // list all schedules for a user
-app.get('/schedules', async (req, res) => {
+app.get('/:userId/schedules', async (req, res) => {
+  const userId = parseInt(req.params.userId);
   const schedules = await client.schedule.findMany({
-    where: { userId: req.user?.id },
+    where: { userId },
   });
 
   res.json({ schedules });
 });
 
-
-
 // #endregion
+
 
 app.get("/", (req, res) => {
   res.send(`<h1>Hello, world!</h1>`);
