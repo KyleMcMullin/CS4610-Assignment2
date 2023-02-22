@@ -9,16 +9,44 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-type Reptile = {
+interface AuthRequest extends Request {
+  user?: any; // replace 'any' with the type of your user object
+}
 
-}  
+type Reptile = {
+  id: number,
+  userId: number,
+  species: string,
+  name: string,
+  sex: string,
+  createdAt: Date,
+  updatedAt: Date
+}
 
 type Schedule = {
+  id: number,
+  reptileId: number,
+  userId: number,
+  type: string,
+  description: string,
+  monday: boolean,
+  tuesday: boolean,
+  wednesday: boolean,
+  thursday: boolean,
+  friday: boolean,
+  saturday: boolean,
+  sunday: boolean,
+  createdAt: Date,
+  updatedAt: Date
 
 }
 
 type Feeding = {
-
+  id: number,
+  reptileId: number,
+  foodItem: string,
+  createdAt: Date,
+  updatedAt: Date
 }
 
 type HusbandryRecord = {
@@ -231,6 +259,52 @@ app.get('/reptile/:userId', async (req, res) => {
   });
   res.json(reptiles);
 });
+
+// create schedule for a reptile
+app.post('/reptile/:reptileId/schedules', async (req, res) => {
+  const reptileId = parseInt(req.params.reptileId);
+  const { type, description, monday, tuesday, wednesday, thursday, friday, saturday, sunday } = req.body as Schedule;
+  
+  const schedule = await client.schedule.create({
+    data: {
+      reptileId,
+      userId: req.user?.id,
+      type,
+      description,
+      monday,
+      tuesday,
+      wednesday,
+      thursday,
+      friday,
+      saturday,
+      sunday,
+    },
+  });
+  
+  res.json({ schedule });
+});
+
+// list all schedules for a reptile
+app.get('/reptile/:reptileId/schedules', async (req, res) => {
+  const reptileId = parseInt(req.params.reptileId);
+
+  const schedules = await client.schedule.findMany({
+    where: { reptileId },
+  });
+  
+  res.json({ schedules });
+});
+
+// list all schedules for a user
+app.get('/schedules', async (req, res) => {
+  const schedules = await client.schedule.findMany({
+    where: { userId: req.user?.id },
+  });
+
+  res.json({ schedules });
+});
+
+
 
 // #endregion
 
