@@ -216,7 +216,7 @@ app.post('/reptile', async (req, res) => {
 // delete reptile
 app.delete('/reptile/:id', async (req, res) => {  
   const id = parseInt(req.params.id);
-  const deleted = await client.reptile.delete({
+  await client.reptile.delete({
     where: {
       id
     }
@@ -243,6 +243,12 @@ app.put('/reptile/:id', async (req, res) => {
       sex
     }
   });
+
+  if (!reptile) {
+    res.status(404);
+    return;
+  }
+
   res.json({reptile})
 });
 
@@ -254,6 +260,10 @@ app.get('/reptile/:userId', async (req, res) => {
       userId 
     }
   });
+  if (!reptiles) {
+    res.status(404).json("Reptiles not found");
+    return;
+  }
   res.json(reptiles);
 });
 // #endregion
@@ -294,6 +304,10 @@ app.get('/reptile/:reptileId/schedules', async (req, res) => {
     where: { reptileId },
   });
   
+  if (!schedules) {
+    res.status(404).json("Schedules not found");
+    return;
+  }
   res.json({ schedules });
 });
 

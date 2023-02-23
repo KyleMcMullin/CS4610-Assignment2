@@ -40,7 +40,7 @@ model Reptile {
 model Feeding {
   id         Int      @id @default(autoincrement())
   reptileId  Int
-  reptile    Reptile  @relation(fields: [reptileId], references: [id])
+  reptile    Reptile  @relation(fields: [reptileId], references: [id], onDelete: Cascade)
   foodItem   String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -49,7 +49,7 @@ model Feeding {
 model HusbandryRecord {
   id         Int      @id @default(autoincrement())
   reptileId  Int
-  reptile    Reptile  @relation(fields: [reptileId], references: [id])
+  reptile    Reptile  @relation(fields: [reptileId], references: [id], onDelete: Cascade)
   length     Float
   weight     Float
   temperature Float
@@ -61,7 +61,7 @@ model HusbandryRecord {
 model Schedule {
   id           Int      @id @default(autoincrement())
   reptileId    Int
-  reptile      Reptile  @relation(fields: [reptileId], references: [id])
+  reptile      Reptile  @relation(fields: [reptileId], references: [id], onDelete: Cascade)
   userId       Int
   user         User     @relation(fields: [userId], references: [id])
   type         String
