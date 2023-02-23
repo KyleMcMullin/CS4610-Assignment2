@@ -1,7 +1,14 @@
 # CS4610-Assignment2
 
-If the schema looks good run,
+Run either 
+```npm i```
+or
+```yarn dev```
+
+To run the migration do either
 
 ```npx prisma migrate dev --name init```
 
-after you rebuild the dependencies
+or
+
+```yarn db:migrate```
