@@ -84,11 +84,8 @@ const authenticationMiddleware: RequestHandler = async (req: RequestWithSession,
       req.user = session.user;
     }
   }
-  // provide a default value for req.user
-  req.user = req.user || undefined;
   next();
-};
-
+}
 
 app.use(authenticationMiddleware);
 
@@ -313,10 +310,125 @@ app.get('/:userId/schedules', async (req, res) => {
 // #endregion
 
 
+// #region Husbandry
+app.post('/reptile/:userId/:id/husbandry', async (req, res) => {
+const reptileId = parseInt(req.params.id);
+const length = parseFloat(req.body.length);
+const weight = parseFloat(req.body.weight);
+const temperature = parseFloat(req.body.temperature);
+const humidity = parseFloat(req.body.humidity);
+const userId = parseInt(req.params.userId);
+const reptile = await client.reptile.findFirst({
+  where: {
+    id: reptileId,
+    userId
+  }
+});
+
+// check if the reptile exists
+if (!reptile) {
+return res.status(404).json({ error: "Reptile not found" });
+}
+
+const husbandryRecord = await client.husbandryRecord.create({
+  data: {
+    reptileId,
+    length,
+    weight,
+    temperature,
+    humidity
+  }
+});  
+// Return the new husbandry record in the response
+res.json(husbandryRecord);
+});
+
+app.get('/reptile/:userId/:id/husbandry', async (req, res) => {
+  const reptileId = parseInt(req.params.id);
+  const userId = parseInt(req.params.userId);
+  const reptile = await client.reptile.findFirst({
+    where: {
+      id: reptileId,
+      userId
+    }
+  });
+  
+  // check if the reptile exists
+  if (!reptile) {
+  return res.status(404).json({ error: "Reptile not found" });
+  }
+  const husbandryRecords = await client.husbandryRecord.findMany({
+    where: {
+      reptileId: reptile.id,
+    }
+  });
+
+  res.json(husbandryRecords);
+});
+// #endregion
+
+// #region Feeding
+app.post('/reptile/:userId/:id/feeding', async (req, res) => {
+const feeding = req.body;
+const foodItem = req.body.foodItem;
+const reptileId = parseInt(req.params.id);
+const userId = parseInt(req.params.userId);
+const reptile = await client.reptile.findFirst({
+  where: {
+    id: reptileId,
+    userId
+  }
+});
+
+// check if the reptile exists
+if (!reptile) {
+return res.status(404).json({ error: "Reptile not found" });
+}
+
+
+// Create a feeding for the reptile with the specified id
+const newFeeding = await client.feeding.create({
+data: {
+  reptileId,
+  foodItem
+}
+});
+// Return the new feeding in the response
+res.json(newFeeding);
+});
+
+
+app.get('/reptile/:userId/:id/feeding', async (req, res) => {
+  const feeding = req.body;
+  const reptileId = parseInt(req.params.id);
+  const userId = parseInt(req.params.userId);
+  const reptile = await client.reptile.findFirst({
+    where: {
+      id: reptileId,
+      userId
+    }
+  });
+
+
+  // check if the reptile exists
+  if (!reptile) {
+  return res.status(404).json({ error: "Reptile not found" });
+  }
+  const feedings = await client.feeding.findMany({
+    where: {
+      reptileId: reptile.id
+    }});
+  // Get all the feedings for the reptile with the specified id
+  // Return the list of feedings in the response
+  res.json(feedings);
+  });
+
+// #endregion
+
 app.get("/", (req, res) => {
   res.send(`<h1>Hello, world!</h1>`);
 });
 
 app.listen(3000, () => {
-  console.log("I got started!");
+  console.log("Server Up And Running!");
 });
