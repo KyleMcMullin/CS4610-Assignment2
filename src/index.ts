@@ -9,16 +9,41 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-type Reptile = {
 
-}  
+type Reptile = {
+  id: number,
+  userId: number,
+  species: string,
+  name: string,
+  sex: string,
+  createdAt: Date,
+  updatedAt: Date
+}
 
 type Schedule = {
+  id: number,
+  reptileId: number,
+  userId: number,
+  type: string,
+  description: string,
+  monday: boolean,
+  tuesday: boolean,
+  wednesday: boolean,
+  thursday: boolean,
+  friday: boolean,
+  saturday: boolean,
+  sunday: boolean,
+  createdAt: Date,
+  updatedAt: Date
 
 }
 
 type Feeding = {
-
+  id: number,
+  reptileId: number,
+  foodItem: string,
+  createdAt: Date,
+  updatedAt: Date
 }
 
 type HusbandryRecord = {
@@ -231,6 +256,172 @@ app.get('/reptile/:userId', async (req, res) => {
   });
   res.json(reptiles);
 });
+// #endregion
+
+
+// #region Schedules
+
+// create schedule for a reptile
+app.post('/reptile/:userId/:reptileId/schedules', async (req, res) => {
+  const reptileId = parseInt(req.params.reptileId);
+  const userId = parseInt(req.params.userId);
+  const { type, description, monday, tuesday, wednesday, thursday, friday, saturday, sunday } = req.body as Schedule;
+  
+  const schedule = await client.schedule.create({
+    data: {
+      reptileId,
+      userId,
+      type,
+      description,
+      monday,
+      tuesday,
+      wednesday,
+      thursday,
+      friday,
+      saturday,
+      sunday,
+    },
+  });
+  
+  res.json({ schedule });
+});
+
+// list all schedules for a reptile
+app.get('/reptile/:reptileId/schedules', async (req, res) => {
+  const reptileId = parseInt(req.params.reptileId);
+
+  const schedules = await client.schedule.findMany({
+    where: { reptileId },
+  });
+  
+  res.json({ schedules });
+});
+
+// list all schedules for a user
+app.get('/:userId/schedules', async (req, res) => {
+  const userId = parseInt(req.params.userId);
+  const schedules = await client.schedule.findMany({
+    where: { userId },
+  });
+
+  res.json({ schedules });
+});
+
+// #endregion
+
+
+// #region Husbandry
+app.post('/reptile/:userId/:id/husbandry', async (req, res) => {
+const reptileId = parseInt(req.params.id);
+const length = parseFloat(req.body.length);
+const weight = parseFloat(req.body.weight);
+const temperature = parseFloat(req.body.temperature);
+const humidity = parseFloat(req.body.humidity);
+const userId = parseInt(req.params.userId);
+const reptile = await client.reptile.findFirst({
+  where: {
+    id: reptileId,
+    userId
+  }
+});
+
+// check if the reptile exists
+if (!reptile) {
+return res.status(404).json({ error: "Reptile not found" });
+}
+
+const husbandryRecord = await client.husbandryRecord.create({
+  data: {
+    reptileId,
+    length,
+    weight,
+    temperature,
+    humidity
+  }
+});  
+// Return the new husbandry record in the response
+res.json(husbandryRecord);
+});
+
+app.get('/reptile/:userId/:id/husbandry', async (req, res) => {
+  const reptileId = parseInt(req.params.id);
+  const userId = parseInt(req.params.userId);
+  const reptile = await client.reptile.findFirst({
+    where: {
+      id: reptileId,
+      userId
+    }
+  });
+  
+  // check if the reptile exists
+  if (!reptile) {
+  return res.status(404).json({ error: "Reptile not found" });
+  }
+  const husbandryRecords = await client.husbandryRecord.findMany({
+    where: {
+      reptileId: reptile.id,
+    }
+  });
+
+  res.json(husbandryRecords);
+});
+// #endregion
+
+// #region Feeding
+app.post('/reptile/:userId/:id/feeding', async (req, res) => {
+const feeding = req.body;
+const foodItem = req.body.foodItem;
+const reptileId = parseInt(req.params.id);
+const userId = parseInt(req.params.userId);
+const reptile = await client.reptile.findFirst({
+  where: {
+    id: reptileId,
+    userId
+  }
+});
+
+// check if the reptile exists
+if (!reptile) {
+return res.status(404).json({ error: "Reptile not found" });
+}
+
+
+// Create a feeding for the reptile with the specified id
+const newFeeding = await client.feeding.create({
+data: {
+  reptileId,
+  foodItem
+}
+});
+// Return the new feeding in the response
+res.json(newFeeding);
+});
+
+
+app.get('/reptile/:userId/:id/feeding', async (req, res) => {
+  const feeding = req.body;
+  const reptileId = parseInt(req.params.id);
+  const userId = parseInt(req.params.userId);
+  const reptile = await client.reptile.findFirst({
+    where: {
+      id: reptileId,
+      userId
+    }
+  });
+
+
+  // check if the reptile exists
+  if (!reptile) {
+  return res.status(404).json({ error: "Reptile not found" });
+  }
+  const feedings = await client.feeding.findMany({
+    where: {
+      reptileId: reptile.id
+    }});
+  // Get all the feedings for the reptile with the specified id
+  // Return the list of feedings in the response
+  res.json(feedings);
+  });
 
 // #endregion
 
@@ -239,5 +430,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(3000, () => {
-  console.log("I got started!");
+  console.log("Server Up And Running!");
 });
