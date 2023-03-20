@@ -3,11 +3,15 @@ import { PrismaClient, Session, User } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from 'uuid';
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 const client = new PrismaClient();
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors({
+  origin: 'http://localhost:5173/'
+}));
 
 
 type Reptile = {

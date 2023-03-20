@@ -9,8 +9,10 @@ export class Api {
       method,
       headers: {
         "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": "true",
         // "Authorization": "Bearer <your token>" // for token auth
       },
+      credentials: 'include'
       // credentials: 'include' // for session and cookies
     }
 

@@ -14,3 +14,11 @@ input {
     font-size: small;
     margin-top: 5px;
 }
+
+.hidden {
+    visibility: hidden;
+}
+
+.visible {
+    visibility: visible;
+}
