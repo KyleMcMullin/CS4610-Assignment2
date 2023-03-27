@@ -6,52 +6,32 @@ import { useApi } from "../hooks/useApi";
 export const Signup = () => {
     const navigate = useNavigate();
     const api  = useApi();
-    const [showError, setError] = useState(false);
+    const [showError, setShowError] = useState(false);
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    function signup() {
-        setError(false);
+    async function signup() {
+        setShowError(false);
         if (
             firstName === "" ||
             lastName === "" ||
             email === "" ||
             password === ""
         ) {
-            setError(true);
+            setShowError(true);
             return;
         }
         
-        let result = false;
         let record = {
             "firstName": firstName,
             "lastName": lastName,
             "email": email,
             "password": password
         };
-        let promise = api.post("http://localhost:3000/users", record);
-        promise.then(response => {
-            console.log(response.status);
-            // if (response.status === 204) {
-                
-            // }
-            // responses.forEach( (response: { status: string; }) =>
-            //     if (response.status === '') {
-
-            //     }                              
-            // )
-            }
-        )
-        // if any of the fields are blank
-        // set error and return
-        // setError("visible");
-        // else
-        // make api call   
-        // check if api call is valid
-        // if not then set error and return
-        // else navigate to dashboard                 
+        let result = await api.post("/users", record);
+        navigate('../dashboard/', {replace: true});              
     }
 
     return (

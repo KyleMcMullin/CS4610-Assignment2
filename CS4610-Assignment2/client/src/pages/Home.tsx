@@ -16,7 +16,7 @@ export const Home = () => {
                 <h3>Welcome to your reptile's future!</h3>
                 <p>The #1 herpetologist recommended reptile tracking app! We help keep track of your reptile to make ownership as easy and fun as can be!</p>
                 <button onClick={() => navigate('login/', {replace: true})}>Login</button>            
-                <button onClick={() => navigate('signup', {replace: true})}>Sign up</button>
+                <button onClick={() => navigate('signup/', {replace: true})}>Sign up</button>
             </div>
         </div>
     )
