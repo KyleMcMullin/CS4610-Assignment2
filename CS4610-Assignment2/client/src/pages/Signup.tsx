@@ -30,7 +30,7 @@ export const Signup = () => {
             "email": email,
             "password": password
         };
-        let result = await api.post("/users", record);
+        let result = await api.post("/users", record).then(response => response.json().then((data: any) => (console.log(data))));
         navigate('../dashboard/', {replace: true});              
     }
 

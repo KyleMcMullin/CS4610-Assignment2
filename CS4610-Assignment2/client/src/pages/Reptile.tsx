@@ -47,34 +47,34 @@ export const Reptile = () => {
         updatedAt: Date;
       }
     function getHusbandryRecords(){
-    api.get('http://localhost:3000/reptile/' + id + '/' + reptileId + '/husbandry')
+    api.get('/husbandry')
     .then(response => response.json())
     .then(data => setHusbandryData((prevHusbandryData) => [...prevHusbandryData, data as HusbandryRecord]))
     };
 
 
     function getSchedules(){
-        fetch('http://localhost:3000/reptile/' + id + '/' + reptileId + '/schedules')
+        fetch('/schedules')
     }
     // function updateReptile(updatedReptile: Reptile){
     //     api.put('http://localhost:3000/reptile/' + id + '/' + reptileId,{body: JSON.stringify(updatedReptile)})
     // }
     function createFeeding(newFeeding: Feeding){
-        api.post('http://localhost:3000/reptile/' + id + '/' + reptileId + '/feeding',{body: JSON.stringify(newFeeding)
+        api.post('/feeding',{body: JSON.stringify(newFeeding)
         })
     }
     function createHusbandryRecord(newHusbandryRecord: HusbandryRecord){
-        api.post("http://localhost:3000/reptile/" + id + "/" + reptileId + "/husbandry",{
+        api.post("/husbandry",{
             body: JSON.stringify(newHusbandryRecord)
         })
     }
     function createSchedule(newSchedule: Schedule){
-        api.post("http://localhost:3000/reptile/" + id + "/" + reptileId + "/schedules",{
+        api.post("/schedules",{
             body: JSON.stringify(newSchedule)
         })
     }
     function getFeedings(){
-    api.get('http://localhost:3000/reptile/' + id + '/' + reptileId + '/feeding')
+    api.get('/feeding')
     .then(data => setFeedData((prevFeedData) => [...prevFeedData, data as Feeding]))};
 
 
@@ -105,7 +105,7 @@ export const Reptile = () => {
             <div>
                 <h1>Schedules</h1>
                 <ul>
-                {scheduleData?.map(schedule => (
+                {scheduleData.map(schedule => (
                     <li key={schedule.id}>
                         {schedule.type} {schedule.description} {schedule.monday} {schedule.tuesday} {schedule.wednesday} {schedule.thursday} {schedule.friday} {schedule.saturday} {schedule.sunday}
                     </li>
