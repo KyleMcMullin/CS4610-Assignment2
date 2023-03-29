@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { ApiContext } from "../contexts/api";
 import { useApi } from "../hooks/useApi";
 
 interface Reptile {
     id: number;
     name: string;
-    // Add other properties here
 }
 
 interface Schedule {
@@ -29,72 +28,74 @@ interface Schedule {
 export const Dashboard = () => {
     const navigate = useNavigate();
     const api = useApi();
-    const [firstName, setFirstName] = useState("");
-    const [reptiles, setReptiles] = useState<Reptile[]>([]);
+    const { id, userId, reptileId } = useParams();
     const [showAddReptileModal, setShowAddReptileModal] = useState(false);
     const [newReptileName, setNewReptileName] = useState("");
     const [schedules, setSchedules] = useState<Schedule[]>([]);
+    const [newReptileSpecies, setNewReptileSpecies] = useState('');
+    const [newReptileSex, setNewReptileSex] = useState('');
+    const [reptileData, setReptileData] = useState([] as Reptile[])
+
 
     const handleLogout = () => {
         window.localStorage.removeItem("token");
         navigate("/", { replace: true });
     };
 
-    const handleAddReptile = async () => {
-        const userId = window.localStorage.getItem("userId");
-        const response = await api.post(`/reptile/${userId}`, { name: newReptileName });
-        const newReptile = response.data;
-        setReptiles([...reptiles, newReptile]);
+    const handleAddReptile = () => {
+        const newReptile = {
+            id: Math.floor(Math.random() * 1000), // generate a random id
+            userId: userId, // assuming you have a variable named currentUserId that holds the current user's id
+            species: newReptileSpecies, // assuming you have a variable named newReptileSpecies that holds the new reptile's species
+            name: newReptileName,
+            sex: newReptileSex, // assuming you have a variable named newReptileSex that holds the new reptile's sex
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+        // add the new reptile to the list of reptiles
+        setReptileData([...reptileData as Reptile[], newReptile as unknown as Reptile]);
+        // hide the add reptile modal
         setShowAddReptileModal(false);
-        setNewReptileName("");
-    };
+        // reset the new reptile form inputs
+        setNewReptileName('');
+        setNewReptileSpecies('');
+        setNewReptileSex('');
+    }
+
 
     useEffect(() => {
-        const userId = window.localStorage.getItem("userId");
-        api.get(`/reptile/${userId}`).then((response) => {
-            response.json().then((data: Reptile[]) => {
-                setReptiles(data);
-            });
-        });
-    }, []);
+        getReptiles();
+    }, [])
+    type Reptile = {
+        id: number,
+        userId: number,
+        species: string,
+        name: string,
+        sex: string,
+        createdAt: Date,
+        updatedAt: Date
+    }
+
+    function getReptiles(){
+        api.get('../reptile/' + reptileId)
+            .then(response => response.json())
+            .then(data => setReptileData(data as Reptile[]))
+    }
+
 
     useEffect(() => {
-        async function fetchData() {
-            try {
-                const response = await api.get("/users/current"); // make API call to get current user's data
-                setFirstName(response.data.firstName); // set the first name in the state
-            } catch (e) {
-                console.log(e);
-            }
-        }
-
-        fetchData();
-    }, []);
-
-    useEffect(() => {
-        const userId = window.localStorage.getItem("userId");
         api.get(`/${userId}/schedules`).then((response) => {
             setSchedules(response.data.schedules);
         });
     }, []);
 
-    // #TODO Uncomment when you figure out token issues
-
-    // useEffect(() => {
-    //     if (!window.localStorage.getItem("token")) {
-    //         navigate("/", {
-    //             replace: true
-    //         })
-    //     }
-    // }, [])
-
     return (
         <div>
-            <h2>Welcome to {firstName} Dashboard:</h2>
+            <h2>Welcome to your Reptile Dashboard:</h2>
 
             <h3>List of Reptiles:</h3>
             <ul>
-                {reptiles.map((reptile) => (
+                {reptileData.map((reptile) => (
                     <li key={reptile?.id}>
                         <Link to={`/reptile/${reptile?.id}`}>{reptile?.name}</Link>
                     </li>
@@ -105,13 +106,21 @@ export const Dashboard = () => {
 
             {showAddReptileModal && (
                 <div>
+
                     <label htmlFor="newReptileName">Name:</label>
                     <input type="text" id="newReptileName" value={newReptileName} onChange={(e) => setNewReptileName(e.target.value)} />
+
+                    <label htmlFor="newReptileSpecies">Species:</label>
+                    <input type="text" id="newReptileSpecies" value={newReptileSpecies} onChange={(e) => setNewReptileSpecies(e.target.value)} />
+
+                    <label htmlFor="newReptileSex">Sex:</label>
+                    <input type="text" id="newReptileSex" value={newReptileSex} onChange={(e) => setNewReptileSex(e.target.value)} />
+
                     <button onClick={handleAddReptile}>Add</button>
                 </div>
             )}
 
-            <h3>List of Schedules:</h3>
+            {/* <h3>List of Schedules:</h3>
             <ul>
                 {schedules.map((schedule) => (
                     <li key={schedule.id}>
@@ -130,7 +139,7 @@ export const Dashboard = () => {
                         </ul>
                     </li>
                 ))}
-            </ul>
+            </ul> */}
 
             <button onClick={handleLogout}>Logout</button>
         </div>
