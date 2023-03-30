@@ -15,9 +15,14 @@ export const Dashboard = () => {
     const [reptileData, setReptileData] = useState([] as Reptile[])
     
     useEffect(() => {
-        getReptiles();
+        if (reptileData.length > 0) {
+          getReptiles();
+        }
+        if (schedules.length > 0) {
+            getSchedules();
+        }
         getSchedules();
-    }, [])
+      }, []);
 
     type Schedule = {
         id: number,
@@ -36,7 +41,6 @@ export const Dashboard = () => {
         updatedAt: Date
     }    
 
-
     type Reptile = {
         id: number,
         userId: number,
@@ -51,10 +55,14 @@ export const Dashboard = () => {
     api.get('../reptile/' + id)
     .then(response => response.json())
     .then(data => setReptileData(data as Reptile[]))
-}
+    }
+
+    //TODO Fix {userId}/schedules is giving http://localhost:3000/%7BuserId%7D/schedules 
 
     function getSchedules(){
-        fetch('/schedules')
+        api.get('../{userId}/schedules')
+        .then(response => response.json())
+        .then(data => setSchedules(data as Schedule[])) 
     }
 
     const handleLogout = () => {
@@ -62,25 +70,37 @@ export const Dashboard = () => {
         navigate("/", { replace: true });
     };
 
-    const handleAddReptile = () => {
-        const newReptile = {
-            id: reptileData.length + 1, // parse id to a number
-            userId: Number(userId),
-            species: newReptileSpecies,
-            name: newReptileName,
-            sex: newReptileSex,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-        // add the new reptile to the list of reptiles
-        setReptileData([...reptileData, newReptile]);
-        // hide the add reptile modal
-        setShowAddReptileModal(false);
-        // reset the new reptile form inputs
-        setNewReptileName('');
-        setNewReptileSpecies('');
-        setNewReptileSex('');
-    };
+
+const handleAddReptile = async () => {
+  const newReptile = {
+    userId: Number(userId),
+    species: newReptileSpecies,
+    name: newReptileName,
+    sex: newReptileSex,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  // Send POST request to add new reptile
+  const response = await fetch('http://localhost:3000/todos', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(newReptile)
+  });
+  const addedReptile = await response.json();
+
+  // Add new reptile to list of reptiles
+  setReptileData([...reptileData, addedReptile]);
+
+  // Hide the add reptile modal and reset form inputs
+  setShowAddReptileModal(false);
+  setNewReptileName("");
+  setNewReptileSpecies("");
+  setNewReptileSex("");
+};
+
 
     return (
         <div>
