@@ -60,7 +60,7 @@ export const Dashboard = () => {
     //TODO Fix {userId}/schedules is giving http://localhost:3000/%7BuserId%7D/schedules 
 
     function getSchedules(){
-        api.get('../{userId}/schedules')
+        api.get('../'+ userId +'/schedules')
         .then(response => response.json())
         .then(data => setSchedules(data as Schedule[])) 
     }
@@ -122,14 +122,20 @@ const handleAddReptile = async () => {
             {showAddReptileModal && (
                 <div>
 
-                    <label htmlFor="newReptileName">Name:</label>
-                    <input type="text" id="newReptileName" value={newReptileName} onChange={(e) => setNewReptileName(e.target.value)} />
+                    <div>
+                        <label htmlFor="newReptileName">Name:</label>
+                        <input type="text" id="newReptileName" value={newReptileName} onChange={(e) => setNewReptileName(e.target.value)} />
+                    </div>
 
-                    <label htmlFor="newReptileSpecies">Species:</label>
-                    <input type="text" id="newReptileSpecies" value={newReptileSpecies} onChange={(e) => setNewReptileSpecies(e.target.value)} />
+                    <div>
+                        <label htmlFor="newReptileSpecies">Species:</label>
+                        <input type="text" id="newReptileSpecies" value={newReptileSpecies} onChange={(e) => setNewReptileSpecies(e.target.value)} />
+                    </div>
 
-                    <label htmlFor="newReptileSex">Sex:</label>
-                    <input type="text" id="newReptileSex" value={newReptileSex} onChange={(e) => setNewReptileSex(e.target.value)} />
+                    <div>
+                        <label htmlFor="newReptileSex">Sex:</label>
+                        <input type="text" id="newReptileSex" value={newReptileSex} onChange={(e) => setNewReptileSex(e.target.value)} />
+                    </div>
 
                     <button onClick={handleAddReptile}>Add</button>
                 </div>

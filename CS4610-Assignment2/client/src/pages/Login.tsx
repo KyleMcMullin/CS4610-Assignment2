@@ -25,8 +25,9 @@ export const Login = () => {
             "email": email,
             "password": password
         };
+
         let result = await api.post("/sessions", record);
-        navigate('../dashboard/', {replace: true});        
+        navigate('../dashboard/1', {replace: true});
     }
 
     return (
