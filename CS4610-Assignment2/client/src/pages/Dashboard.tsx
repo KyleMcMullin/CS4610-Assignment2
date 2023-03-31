@@ -6,23 +6,24 @@ import { useApi } from "../hooks/useApi";
 export const Dashboard = () => {
     const navigate = useNavigate();
     const api = useApi();
-    const { id, userId, reptileId } = useParams();
+    const { id, reptileId } = useParams();
     const [showAddReptileModal, setShowAddReptileModal] = useState(false);
     const [newReptileName, setNewReptileName] = useState("");
     const [schedules, setSchedules] = useState<Schedule[]>([]);
     const [newReptileSpecies, setNewReptileSpecies] = useState('');
     const [newReptileSex, setNewReptileSex] = useState('');
     const [reptileData, setReptileData] = useState([] as Reptile[])
-    
+    const [userId, setUserId] = useState<number | null>(null);
+
     useEffect(() => {
+        getUserId();
         if (reptileData.length > 0) {
           getReptiles();
         }
-        if (schedules.length > 0) {
+        if (schedules.length > 0 && userId) {
             getSchedules();
         }
-        getSchedules();
-      }, []);
+      }, [reptileData, schedules, userId]);
 
     type Schedule = {
         id: number,
@@ -51,13 +52,22 @@ export const Dashboard = () => {
         updatedAt: Date
     }
 
-   function getReptiles(){
+    function getUserId() {
+        fetch('/me')
+            .then(response => response.json())
+            .then(data => {
+                const userId = data.user.id;
+                setUserId(userId);
+            })
+            .catch(error => console.error(error));
+    }
+
+
+    function getReptiles(){
     api.get('../reptile/' + id)
     .then(response => response.json())
     .then(data => setReptileData(data as Reptile[]))
     }
-
-    //TODO Fix {userId}/schedules is giving http://localhost:3000/%7BuserId%7D/schedules 
 
     function getSchedules(){
         api.get('../'+ userId +'/schedules')
