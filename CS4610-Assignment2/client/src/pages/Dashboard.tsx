@@ -6,6 +6,7 @@ import { useApi } from "../hooks/useApi";
 export const Dashboard = () => {
     const navigate = useNavigate();
     const api = useApi();
+
     const [showAddReptileModal, setShowAddReptileModal] = useState(false);
     const [newReptileName, setNewReptileName] = useState("");
     const [schedulesData, setSchedulesData] = useState([] as Schedule[]);
@@ -17,8 +18,12 @@ export const Dashboard = () => {
     const [userId, setUserId] = useState<number | null>(null);
 
     useEffect(() => {
-        getUserId();
+        getUserId()
     }, []);
+
+    useEffect(() => {
+        console.log(userId);
+    }, [userId]);
 
     const getUserId = async () => {
         try {
@@ -155,7 +160,7 @@ export const Dashboard = () => {
                             <div>
                                 {reptile.name}
                             </div>
-                            <button onClick={() => navigate("../reptile/" + reptile.id, { replace: true })}>Select</button>
+                            <button onClick={() => navigate(`../reptile/${userId}/${reptile.id}`, { replace: true })}>Select</button>
                             <button onClick={() => handleDeleteReptile(reptile.id)}>Delete</button>
                         </div>
 

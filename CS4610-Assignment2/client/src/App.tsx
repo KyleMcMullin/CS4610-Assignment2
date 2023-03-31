@@ -16,7 +16,7 @@ const router = createBrowserRouter([
     element: <Root />,
     children: [
       {
-        path: 'reptile/:id',
+        path: 'reptile/:userId/:reptileId',
         element: <Reptile />
       },
       {

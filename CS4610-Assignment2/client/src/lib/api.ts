@@ -18,6 +18,7 @@ export class Api {
     }
 
     const result = await fetch(url, options);
+    console.log(url);
     return result.json();
   }
 

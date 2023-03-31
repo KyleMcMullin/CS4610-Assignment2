@@ -334,12 +334,12 @@ app.get('/:userId/schedules', async (req, res) => {
 
 
 // #region Husbandry
-app.post('/reptile/:userId/:id/husbandry', async (req, res) => {
-const reptileId = parseInt(req.params.id);
-const length = parseFloat(req.body.length);
-const weight = parseFloat(req.body.weight);
-const temperature = parseFloat(req.body.temperature);
-const humidity = parseFloat(req.body.humidity);
+app.post('/reptile/:userId/:reptileId/husbandry', async (req, res) => {
+const reptileId = parseInt(req.params.reptileId);
+const length = parseFloat(req.body.body.length);
+const weight = parseFloat(req.body.body.weight);
+const temperature = parseFloat(req.body.body.temperature);
+const humidity = parseFloat(req.body.body.humidity);
 const userId = parseInt(req.params.userId);
 const reptile = await client.reptile.findFirst({
   where: {
@@ -347,6 +347,7 @@ const reptile = await client.reptile.findFirst({
     userId
   }
 });
+
 
 // check if the reptile exists
 if (!reptile) {
@@ -366,8 +367,8 @@ const husbandryRecord = await client.husbandryRecord.create({
 res.json(husbandryRecord);
 });
 
-app.get('/reptile/:userId/:id/husbandry', async (req, res) => {
-  const reptileId = parseInt(req.params.id);
+app.get('/reptile/:userId/:reptileId/husbandry', async (req, res) => {
+  const reptileId = parseInt(req.params.reptileId);
   const userId = parseInt(req.params.userId);
   const reptile = await client.reptile.findFirst({
     where: {
