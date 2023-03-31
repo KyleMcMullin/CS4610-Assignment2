@@ -6,24 +6,38 @@ import { useApi } from "../hooks/useApi";
 export const Dashboard = () => {
     const navigate = useNavigate();
     const api = useApi();
-    const { id, reptileId } = useParams();
     const [showAddReptileModal, setShowAddReptileModal] = useState(false);
     const [newReptileName, setNewReptileName] = useState("");
     const [schedules, setSchedules] = useState<Schedule[]>([]);
     const [newReptileSpecies, setNewReptileSpecies] = useState('');
     const [newReptileSex, setNewReptileSex] = useState('');
+
+
     const [reptileData, setReptileData] = useState([] as Reptile[])
+    // const [reptiles, setReptiles] = useState<Reptile[]>([]);
+
     const [userId, setUserId] = useState<number | null>(null);
+    const [reptileId, setReptileId] = useState<number | null>(null);
 
     useEffect(() => {
         getUserId();
-        if (reptileData.length > 0) {
-          getReptiles();
-        }
+        getReptiles();
+
         if (schedules.length > 0 && userId) {
             getSchedules();
         }
-      }, [reptileData, schedules, userId]);
+    }, [reptileData, schedules, userId]);
+
+    
+    const getReptiles = async () => {
+        try {
+            const response = await fetch("../reptile/" + userId);
+            const data = await response.json();
+            setReptileData(data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     type Schedule = {
         id: number,
@@ -62,13 +76,6 @@ export const Dashboard = () => {
             .catch(error => console.error(error));
     }
 
-
-    function getReptiles(){
-    api.get('../reptile/' + id)
-    .then(response => response.json())
-    .then(data => setReptileData(data as Reptile[]))
-    }
-
     function getSchedules(){
         api.get('../'+ userId +'/schedules')
         .then(response => response.json())
@@ -80,36 +87,31 @@ export const Dashboard = () => {
         navigate("/", { replace: true });
     };
 
+    const handleAddReptile = async () => {
+        const newReptileData = {
+            userId: userId, // replace with the actual user ID
+            species: newReptileSpecies,
+            name: newReptileName,
+            sex: newReptileSex,
+        };
+        const response = await api.post("/reptile", newReptileData);
+        console.log(response.reptile.id);
+        const newReptile = {
+            id: response.reptile.id,
+            name: response.reptile.name,
+            species: response.reptile.species,
+            sex: response.reptile.sex,
+            userId: response.reptile.userId,
+            createdAt: response.reptile.createdAt,
+            updatedAt: response.reptile.updatedAt
+        };
+        setReptileData([...reptileData, newReptile]);
+        setNewReptileName("");
+        setNewReptileSpecies("");
+        setNewReptileSex("");
+        setShowAddReptileModal(false);
+    };
 
-const handleAddReptile = async () => {
-  const newReptile = {
-    userId: Number(userId),
-    species: newReptileSpecies,
-    name: newReptileName,
-    sex: newReptileSex,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-
-  // Send POST request to add new reptile
-  const response = await fetch('http://localhost:3000/todos', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(newReptile)
-  });
-  const addedReptile = await response.json();
-
-  // Add new reptile to list of reptiles
-  setReptileData([...reptileData, addedReptile]);
-
-  // Hide the add reptile modal and reset form inputs
-  setShowAddReptileModal(false);
-  setNewReptileName("");
-  setNewReptileSpecies("");
-  setNewReptileSex("");
-};
 
 
     return (
@@ -120,9 +122,9 @@ const handleAddReptile = async () => {
             <ul>
                 {reptileData && reptileData.map((reptile) => (
                     <li key={reptile.id}>
-                        {/* <button onClick={() => navigate('../reptile/' + id + '/' + reptile.id, {replace: true})}>{reptile.name}</button> */}
-                        <button onClick={() => navigate('../reptile/' + reptile.id, {replace: true})}>{reptile.name}</button>
-
+                        <button onClick={() => navigate("../reptile/" + reptile.id, { replace: true })}>
+                            {reptile.name}
+                        </button>
                     </li>
                 ))}
             </ul>   
