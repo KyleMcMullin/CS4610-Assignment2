@@ -14,22 +14,27 @@ export const Dashboard = () => {
 
 
     const [reptileData, setReptileData] = useState([] as Reptile[])
-    // const [reptiles, setReptiles] = useState<Reptile[]>([]);
 
     const [userId, setUserId] = useState<number | null>(null);
-    const [reptileId, setReptileId] = useState<number | null>(null);
 
     useEffect(() => {
         getUserId();
-        getReptiles();
+    }, []);
 
-        if (schedules.length > 0 && userId) {
-            getSchedules();
+    const getUserId = async () => {
+        try {
+            const response = await fetch("/me");
+            const data = await response.json();
+            const userId = data.user.id;
+            setUserId(userId);
+            getReptiles(userId);
+            getSchedules(userId);
+        } catch (error) {
+            console.error(error);
         }
-    }, [reptileData, schedules, userId]);
+    };
 
-    
-    const getReptiles = async () => {
+    const getReptiles = async (userId: number) => {
         try {
             const response = await fetch("../reptile/" + userId);
             const data = await response.json();
@@ -38,6 +43,12 @@ export const Dashboard = () => {
             console.error(error);
         }
     };
+
+    function getSchedules(userId: number){
+        api.get('../'+ userId +'/schedules')
+            .then(response => response.json())
+            .then(data => setSchedules(data as Schedule[]))
+    }
 
     type Schedule = {
         id: number,
@@ -54,7 +65,7 @@ export const Dashboard = () => {
         sunday: boolean,
         createdAt: Date,
         updatedAt: Date
-    }    
+    }
 
     type Reptile = {
         id: number,
@@ -66,21 +77,6 @@ export const Dashboard = () => {
         updatedAt: Date
     }
 
-    function getUserId() {
-        fetch('/me')
-            .then(response => response.json())
-            .then(data => {
-                const userId = data.user.id;
-                setUserId(userId);
-            })
-            .catch(error => console.error(error));
-    }
-
-    function getSchedules(){
-        api.get('../'+ userId +'/schedules')
-        .then(response => response.json())
-        .then(data => setSchedules(data as Schedule[])) 
-    }
 
     const handleLogout = () => {
         window.localStorage.removeItem("token");
@@ -127,7 +123,7 @@ export const Dashboard = () => {
                         </button>
                     </li>
                 ))}
-            </ul>   
+            </ul>
 
             <button onClick={() => setShowAddReptileModal(true)}>Add Reptile</button>
 
