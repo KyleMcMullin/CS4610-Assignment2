@@ -186,7 +186,6 @@ app.get("/me", async (req: RequestWithSession, res) => {
 // #region Reptiles
 
 // post create reptile
-
 type CreateReptileBody = {
   userId: number,
   species: string,
@@ -238,6 +237,7 @@ type PutReptileBody = {
   name: string,
   sex: string,
 }
+
 // put reptile
 app.put('/reptile/:id', async (req, res) => {
   const {species, name, sex} = req.body as PutReptileBody;

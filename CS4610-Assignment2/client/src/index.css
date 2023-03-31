@@ -67,3 +67,13 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.reptile-div {
+  border: 2px solid black;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+ul {
+  padding: 5px;
+}
