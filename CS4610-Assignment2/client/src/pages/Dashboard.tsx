@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ApiContext } from "../contexts/api";
 import { useApi } from "../hooks/useApi";
 
@@ -8,12 +8,11 @@ export const Dashboard = () => {
     const api = useApi();
     const [showAddReptileModal, setShowAddReptileModal] = useState(false);
     const [newReptileName, setNewReptileName] = useState("");
-    const [schedules, setSchedules] = useState<Schedule[]>([]);
+    const [schedulesData, setSchedulesData] = useState([] as Schedule[]);
     const [newReptileSpecies, setNewReptileSpecies] = useState('');
     const [newReptileSex, setNewReptileSex] = useState('');
 
-
-    const [reptileData, setReptileData] = useState([] as Reptile[])
+    const [reptileData, setReptileData] = useState([] as Reptile[]);
 
     const [userId, setUserId] = useState<number | null>(null);
 
@@ -44,10 +43,14 @@ export const Dashboard = () => {
         }
     };
 
-    function getSchedules(userId: number){
-        api.get('../'+ userId +'/schedules')
-            .then(response => response.json())
-            .then(data => setSchedules(data as Schedule[]))
+    const getSchedules= async(userId: number) => {
+        try {
+            const response = await fetch("../" + userId + "/schedules");
+            const data = await response.json();
+            setSchedulesData(data);
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     type Schedule = {
@@ -108,20 +111,55 @@ export const Dashboard = () => {
         setShowAddReptileModal(false);
     };
 
+    async function handleDeleteReptile(id: number) {
+        try {
+            const response = await fetch(`/reptile/${id}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) {
+                throw new Error('Failed to delete reptile');
+            }
+            // Remove the deleted reptile from the local data array
+            setReptileData((prevData) => prevData.filter((reptile) => reptile.id !== id));
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
 
     return (
         <div>
-            <h2>Welcome to your Dashboard:</h2>
+            <h2>Welcome to Your Dashboard:</h2>
 
-            <h3>List of Reptiles:</h3>
+            <h3>Your Schedule for Today:</h3>
+            {schedulesData.length > 0 && schedulesData.map(schedules => (
+                <ul key={schedules.id}>
+                    <li>{schedules.type}</li>
+                    <li>{schedules.description}</li>
+                    <li>{schedules.monday}</li>
+                    <li>{schedules.tuesday}</li>
+                    <li>{schedules.wednesday}</li>
+                    <li>{schedules.thursday}</li>
+                    <li>{schedules.friday}</li>
+                    <li>{schedules.saturday}</li>
+                    <li>{schedules.sunday}</li>
+                </ul>
+            ))}
+
+
+            <h3>Your Reptiles:</h3>
             <ul>
-                {reptileData && reptileData.map((reptile) => (
-                    <li key={reptile.id}>
-                        <button onClick={() => navigate("../reptile/" + reptile.id, { replace: true })}>
-                            {reptile.name}
-                        </button>
-                    </li>
+                {reptileData.length > 0 && reptileData && reptileData.map((reptile) => (
+                    <ul key={reptile.id}>
+                        <div className="reptile-div">
+                            <div>
+                                {reptile.name}
+                            </div>
+                            <button onClick={() => navigate("../reptile/" + reptile.id, { replace: true })}>Select</button>
+                            <button onClick={() => handleDeleteReptile(reptile.id)}>Delete</button>
+                        </div>
+
+                    </ul>
                 ))}
             </ul>
 
