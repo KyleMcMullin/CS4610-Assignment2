@@ -24,12 +24,13 @@ export const Reptile = () => {
     const [newScheduleFriday, setNewScheduleFriday] = useState(false)
     const [newScheduleSaturday, setNewScheduleSaturday] = useState(false)
     const [newScheduleSunday, setNewScheduleSunday] = useState(false)
+    var updateFlag = false;
 
     useEffect(() => {
         getFeedings();
-        getHusbandryRecords();
         getSchedules();
-    }, [scheduleData, feedData, husbandryData])
+        getHusbandryRecords();
+    }, [updateFlag])
     
 
 
@@ -62,17 +63,24 @@ export const Reptile = () => {
         createdAt: Date;
         updatedAt: Date;
       }
-    function getHusbandryRecords(){
-    api.get(`/reptile/${userId}/${reptileId}/husbandry`)
-    .then(response => console.log(response))
-    // .then(data => setHusbandryData(data as HusbandryRecord[]))
-    };
+    async function getHusbandryRecords(){
+        try {
+            const response = await api.get(`/reptile/${userId}/${reptileId}/husbandry`) as HusbandryRecord[];
+            setHusbandryData(response)
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
 
-    function getSchedules(){
-        api.get(`/reptile/${reptileId}/schedules`)
-        .then(response => console.log(response))
-        // .then(data => setScheduleData(data as Schedule[]))    
+    async function getSchedules(){
+        try {
+            const response = await api.get(`/reptile/${reptileId}/schedules`) as Schedule[];
+            setScheduleData(response)
+            console.log(response)
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     async function createFeeding(){
@@ -84,7 +92,8 @@ export const Reptile = () => {
         const response = await api.post(`/reptile/${userId}/${reptileId}/feeding`,{body: newFeeding
         }) as Feeding;
         setNewFeedingFoodItem("");
-        setFeedData([...feedData, response]);
+        //setFeedData([...feedData, response]);
+        updateFlag = !updateFlag;
     }
     async function createHusbandryRecord(){
         console.log(newHusbandryRecordLength)
@@ -100,11 +109,12 @@ export const Reptile = () => {
         const response = await api.post(`/reptile/${userId}/${reptileId}/husbandry`,{
             body: newHusbandryRecord
         }) as HusbandryRecord;
+        console.log(response);
         setNewHusbandryRecordLength("");
         setNewHusbandryRecordWeight("");
         setNewHusbandryRecordTemperature("");
         setNewHusbandryRecordHumidity("");
-        setHusbandryData([...husbandryData, response]);
+        updateFlag = !updateFlag;
     }
 
     async function createSchedule(){
@@ -122,7 +132,7 @@ export const Reptile = () => {
             sunday: newScheduleSunday
         }
 
-        const response = await api.post(`/reptile/${reptileId}/schedules`,{
+        const response = await api.post(`/reptile/${userId}/${reptileId}/schedules`,{
             body: newSchedule
         }) as Schedule;
         setNewScheduleDescription("");
@@ -134,15 +144,22 @@ export const Reptile = () => {
         setNewScheduleFriday(false);
         setNewScheduleSaturday(false);
         setNewScheduleSunday(false);
-        setScheduleData([...scheduleData, response]);
+        updateFlag = !updateFlag;
     }
-    function getFeedings(){
-    api.get(`/reptile/${userId}/${reptileId}/feeding`)
-    .then(data => setFeedData(data as Feeding[]))};
+    async function getFeedings(){
+        try {
+            const response = await api.get(`/reptile/${userId}/${reptileId}/feeding`) as Feeding[];
+            console.log(response)
+            setFeedData(response)
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    
 
 
     function handleHusbandryData(){
-        if (husbandryData.length > 0){
+        if (husbandryData.length > 0 && husbandryData){
             return (
                 <div>
                 <h1>Husbandry Data</h1>
@@ -178,8 +195,8 @@ export const Reptile = () => {
             return (
                 <div>
                     <h1>Schedule Data</h1>
-                {scheduleData.map((schedule) => (
-                    <ul>
+                {scheduleData.map((schedule,index) => (
+                    <ul key={index}>
                     <li>
                         Type: {schedule.type}
                     </li>
@@ -221,12 +238,13 @@ export const Reptile = () => {
         }
     }
     function handleFeedingData(){
-        if(feedData.length > 0){
+        if(feedData.length > 0 && feedData){
+            console.log(feedData)
             return(
                 <div>
                     <h1>Feeding Data</h1>
-                    {feedData.map((feeding) => (
-                        <ul>
+                    {feedData.map((feeding,index) => (
+                        <ul key={index}>
                             <li>
                                 Food Item: {feeding.foodItem}
                             </li>
@@ -246,6 +264,7 @@ export const Reptile = () => {
             )
         }
     }
+
     return (
         <div>
         <h1>Reptile Page!</h1>
@@ -264,10 +283,6 @@ export const Reptile = () => {
                         <label>
                             Food Item:
                             <input type="text" name="foodItem" />
-                        </label>
-                        <label>
-                            Time:
-                            <input type="text" name="time" />
                         </label>
                         <button onClick={createFeeding}>Create Feeding</button>
                         </div>
@@ -297,6 +312,14 @@ export const Reptile = () => {
                     <div>
                         <h1>Create Schedule</h1>
                         <div>
+                            <label>
+                                Type:
+                                <input type="text" name="type" value={newScheduleType} onChange={(e) => setNewScheduleType(e.target.value)}/>
+                            </label>
+                            <label>
+                                Description:
+                                <input type="text" name="description" value={newScheduleDescription} onChange={(e) => setNewScheduleDescription(e.target.value)}/>
+                            </label>
                             <label>
                                 Monday
                         <input type='checkbox' checked={newScheduleMonday} onChange={e => setNewScheduleMonday(e.target.checked)}/>
