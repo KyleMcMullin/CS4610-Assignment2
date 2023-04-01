@@ -343,7 +343,7 @@ export const Reptile = () => {
                     </label>
                     <label>
                         sex:
-                        <input type='text' id="sex" value={updateReptileSex} onChange={(e) => setUpdateReptileSpecies(e.target.value)} />
+                        <input type='text' id="sex" value={updateReptileSex} onChange={(e) => setUpdateReptileSex(e.target.value)} />
                     </label>
                     <button onClick={updateReptile}>Update</button>
                 </div>
