@@ -7,6 +7,14 @@ export const Home = () => {
     const navigate = useNavigate();
     const api  = useApi();
 
+    useEffect(() => {
+        api.get('/me').then((res) => {
+            if (res.user) {
+                navigate('dashboard/', {replace: true});
+            }
+        })
+    }, []);
+
     return (
         <div>
             <div>

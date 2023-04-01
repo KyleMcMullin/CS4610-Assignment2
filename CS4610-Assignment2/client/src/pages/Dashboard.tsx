@@ -25,6 +25,7 @@ export const Dashboard = () => {
             const response = await fetch("/me");
             const data = await response.json();
             const userId = data.user.id;
+            setUserId(userId);
             getDay();
             getReptiles(userId);
             getSchedules(userId);
@@ -91,8 +92,8 @@ export const Dashboard = () => {
     }
 
 
-    const handleLogout = () => {
-        window.localStorage.removeItem("token");
+    async function handleLogout() {
+        await api.post("/logout", {});
         navigate("/", { replace: true });
     };
 
@@ -104,7 +105,6 @@ export const Dashboard = () => {
             sex: newReptileSex,
         };
         const response = await api.post("/reptile", newReptileData);
-        console.log(response.reptile.id);
         const newReptile = {
             id: response.reptile.id,
             name: response.reptile.name,
@@ -161,7 +161,7 @@ export const Dashboard = () => {
                             <div>
                                 {reptile.name}
                             </div>
-                            <button onClick={() => navigate("../reptile/" + reptile.id, { replace: true })}>Select</button>
+                            <button onClick={() => navigate(`../reptile/${userId}/${reptile.id}/`, { replace: true })}>Select</button>
                             <button onClick={() => handleDeleteReptile(reptile.id)}>Delete</button>
                         </div>
 

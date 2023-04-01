@@ -76,7 +76,6 @@ type RequestWithSession = Request & {
 
 // #region Authentication
 
-
 const authenticationMiddleware: RequestHandler = async (req: RequestWithSession, res, next) => {
   const sessionToken = req.cookies["session-token"];
   if (sessionToken) {
@@ -130,6 +129,11 @@ app.post('/users', async (req, res) => {
   });
 
   res.json({ user });
+});
+
+app.post("/logout", async (req, res) => {
+  res.clearCookie("session-token");
+  res.json({ message: "success" });
 });
 
 
@@ -261,6 +265,22 @@ app.put('/reptile/:id', async (req, res) => {
   res.json({reptile})
 });
 
+app.get('/reptile/:userId/:reptileId', async (req, res) => {
+  const userId = parseInt(req.params.userId);
+  const reptileId = parseInt(req.params.userId);
+  const reptile = await client.reptile.findFirst({
+    where: {
+      id: reptileId,
+      userId
+    }
+  });
+  if (!reptile) {
+    res.status(404).json("Reptile not found");
+    return;
+  }
+  res.json(reptile);
+});
+
 // get reptiles
 app.get('/reptile/:userId', async (req, res) => {
   const userId = parseInt(req.params.userId);
@@ -339,7 +359,6 @@ app.get('/reptile/:userId/:reptileId/schedules', async (req, res) => {
       reptileId: reptile.id,
     }
   });
-  console.log(schedules);
   res.json({ schedules });
 });
 
@@ -491,7 +510,6 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 app.get("/", (req, res) => {
-  console.log(process.env.ASSET_URL);
   res.render("app", {
     development: true,
     assetUrl: process.env.ASSET_URL,
