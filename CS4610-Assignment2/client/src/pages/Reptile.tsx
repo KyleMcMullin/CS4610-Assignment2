@@ -92,6 +92,7 @@ export const Reptile = () => {
         const response = await api.post(`/reptile/${userId}/${reptileId}/feeding`,{body: newFeeding
         }) as Feeding;
         setNewFeedingFoodItem("");
+        console.log("item" + newFeedingFoodItem)
         //setFeedData([...feedData, response]);
         updateFlag = !updateFlag;
     }
@@ -282,7 +283,7 @@ export const Reptile = () => {
                     <div>
                         <label>
                             Food Item:
-                            <input type="text" name="foodItem" />
+                            <input type="text" name="foodItem" value={newFeedingFoodItem} onChange={(e) => setNewFeedingFoodItem(e.target.value)}/>
                         </label>
                         <button onClick={createFeeding}>Create Feeding</button>
                         </div>
@@ -296,15 +297,15 @@ export const Reptile = () => {
                         </label>
                         <label>
                             Weight:
-                            <input type="number" name="weight" value={newHusbandryRecordWeight} onChange={(e) => setNewHusbandryRecordWeight(e.target.value)}/>
+                            <input type="number" id="weight" value={newHusbandryRecordWeight} onChange={(e) => setNewHusbandryRecordWeight(e.target.value)}/>
                         </label>
                         <label>
                             Temperature:
-                            <input type="number" name="temperature" value={newHusbandryRecordTemperature} onChange={(e) => setNewHusbandryRecordTemperature(e.target.value)}/>
+                            <input type="number" id="temperature" value={newHusbandryRecordTemperature} onChange={(e) => setNewHusbandryRecordTemperature(e.target.value)}/>
                         </label>
                         <label>
                             Humidity:
-                            <input type="text" name="humidity" value={newHusbandryRecordHumidity} onChange={(e) => setNewHusbandryRecordHumidity(e.target.value)}/>
+                            <input type="text" id="humidity" value={newHusbandryRecordHumidity} onChange={(e) => setNewHusbandryRecordHumidity(e.target.value)}/>
                         </label>
                         <button onClick={createHusbandryRecord}>Add</button>
                         </div>
@@ -314,39 +315,39 @@ export const Reptile = () => {
                         <div>
                             <label>
                                 Type:
-                                <input type="text" name="type" value={newScheduleType} onChange={(e) => setNewScheduleType(e.target.value)}/>
+                                <input type="text" id="type" value={newScheduleType} onChange={(e) => setNewScheduleType(e.target.value)}/>
                             </label>
                             <label>
                                 Description:
-                                <input type="text" name="description" value={newScheduleDescription} onChange={(e) => setNewScheduleDescription(e.target.value)}/>
+                                <input type="text" id="description" value={newScheduleDescription} onChange={(e) => setNewScheduleDescription(e.target.value)}/>
                             </label>
                             <label>
                                 Monday
-                        <input type='checkbox' checked={newScheduleMonday} onChange={e => setNewScheduleMonday(e.target.checked)}/>
+                        <input type='checkbox' id="monday" checked={newScheduleMonday} onChange={e => setNewScheduleMonday(e.target.checked)}/>
                             </label>
                             <label>
                                 Tuesday
-                    <input type='checkbox' checked={newScheduleTuesday} onChange={e => setNewScheduleTuesday(e.target.checked)}/>
+                    <input type='checkbox' id="tuesday" checked={newScheduleTuesday} onChange={e => setNewScheduleTuesday(e.target.checked)}/>
                             </label>
                             <label>
                                 Wednesday
-                    <input type='checkbox' checked={newScheduleWednesday} onChange={e => setNewScheduleWednesday(e.target.checked)}/>
+                    <input type='checkbox' id="wednesday" checked={newScheduleWednesday} onChange={e => setNewScheduleWednesday(e.target.checked)}/>
                             </label>
                             <label>
                                 Thursday
-                    <input type='checkbox' checked={newScheduleThursday} onChange={e => setNewScheduleThursday(e.target.checked)}/>
+                    <input type='checkbox' id="thursday" checked={newScheduleThursday} onChange={e => setNewScheduleThursday(e.target.checked)}/>
                             </label>
                             <label>
                                 Friday
-                    <input type='checkbox' checked={newScheduleFriday} onChange={e => setNewScheduleFriday(e.target.checked)}/>
+                    <input type='checkbox' id="friday" checked={newScheduleFriday} onChange={e => setNewScheduleFriday(e.target.checked)}/>
                             </label>
                             <label>
                                 Saturday
-                    <input type='checkbox' checked={newScheduleSaturday} onChange={e => setNewScheduleSaturday(e.target.checked)}/>
+                    <input type='checkbox' id="saturday" checked={newScheduleSaturday} onChange={e => setNewScheduleSaturday(e.target.checked)}/>
                             </label>
                             <label>
                                 Sunday
-                    <input type='checkbox' checked={newScheduleSunday} onChange={e => setNewScheduleSunday(e.target.checked)}/>
+                    <input type='checkbox' id="sunday" checked={newScheduleSunday} onChange={e => setNewScheduleSunday(e.target.checked)}/>
                             </label>
                             <button onClick={createSchedule}>Add</button>
                             </div>
