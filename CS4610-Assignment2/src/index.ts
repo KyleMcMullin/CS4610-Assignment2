@@ -285,7 +285,19 @@ app.post('/reptile/:userId/:reptileId/schedules', async (req, res) => {
   const reptileId = parseInt(req.params.reptileId);
   const userId = parseInt(req.params.userId);
   const { type, description, monday, tuesday, wednesday, thursday, friday, saturday, sunday } = req.body.body as Schedule;
+  const reptile = await client.reptile.findFirst({
+    where: {
+      id: reptileId,
+      userId
+    }
+  });
   
+  
+  // check if the reptile exists
+  if (!reptile) {
+  return res.status(404).json({ error: "Reptile not found" });
+  }
+
   const schedule = await client.schedule.create({
     data: {
       reptileId,
@@ -301,24 +313,37 @@ app.post('/reptile/:userId/:reptileId/schedules', async (req, res) => {
       sunday,
     },
   });
+
   
   res.json({ schedule });
 });
 
 // list all schedules for a reptile
-app.get('/reptile/:reptileId/schedules', async (req, res) => {
+app.get('/reptile/:userId/:reptileId/schedules', async (req, res) => {
   const reptileId = parseInt(req.params.reptileId);
-
-  const schedules = await client.schedule.findMany({
-    where: { reptileId },
+  const userId = parseInt(req.params.userId);
+  const reptile = await client.reptile.findFirst({
+    where: {
+      id: reptileId,
+      userId
+    }
   });
   
-  if (!schedules) {
-    res.status(404).json("Schedules not found");
-    return;
+  // check if the reptile exists
+  if (!reptile) {
+  return res.status(404).json({ error: "Reptile not found" });
   }
+
+  const schedules = await client.schedule.findMany({
+    where: {
+      reptileId: reptile.id,
+    }
+  });
+  console.log(schedules);
   res.json({ schedules });
 });
+
+
 
 // list all schedules for a user
 app.get('/:userId/schedules', async (req, res) => {

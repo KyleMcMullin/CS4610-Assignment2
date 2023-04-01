@@ -5,11 +5,11 @@ import { ApiContext } from "../contexts/api";
 import { useApi } from "../hooks/useApi";
 
 export const Reptile = () => {
-    const api = useApi();
-    const {reptileId, userId} = useParams();
     const [feedData, setFeedData] = useState([] as Feeding[])
     const [husbandryData, setHusbandryData] = useState([] as HusbandryRecord[])
     const [scheduleData, setScheduleData] = useState([] as Schedule[])
+    const api = useApi();
+    const {reptileId, userId} = useParams();
     const [newHusbandryRecordLength, setNewHusbandryRecordLength] = useState("")
     const [newHusbandryRecordWeight, setNewHusbandryRecordWeight] = useState("")
     const [newHusbandryRecordTemperature, setNewHusbandryRecordTemperature] = useState("")
@@ -24,64 +24,78 @@ export const Reptile = () => {
     const [newScheduleFriday, setNewScheduleFriday] = useState(false)
     const [newScheduleSaturday, setNewScheduleSaturday] = useState(false)
     const [newScheduleSunday, setNewScheduleSunday] = useState(false)
-    var updateFlag = false;
+    const [updateFlag,setUpdateFlag] = useState(false)
+
+    type Feeding = {
+        id: number
+        foodItem: String
+        time: String
+        }
+        type HusbandryRecord = {
+        id: number
+        reptileId: number,
+        length: number,
+        weight: number,
+        temperature: number,
+        humidity: number
+        }
+        type Schedule = {
+            id: number;
+            reptileId: number;
+            userId: number;
+            type: string;
+            description: string;
+            monday: boolean;
+            tuesday: boolean;
+            wednesday: boolean;
+            thursday: boolean;
+            friday: boolean;
+            saturday: boolean;
+            sunday: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+          }
+          async function getHusbandryRecords(){
+            try {
+                const response = await api.get(`/reptile/${userId}/${reptileId}/husbandry`) as HusbandryRecord[];
+                setHusbandryData(response)
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    
+    
+        async function getSchedules(){
+            try {
+                const response = await api.get(`/reptile/${userId}/${reptileId}/schedules`)
+                console.log(response.schedules)
+                setScheduleData(response.schedules)
+                console.log(response)
+                var temp = response as Schedule[];
+                console.log("Schedules** " + temp)
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    
+        async function getFeedings(){
+            try {
+                const response = await api.get(`/reptile/${userId}/${reptileId}/feeding`) as Feeding[];
+                setFeedData(response)
+            } catch (error) {
+                console.error(error);
+            }
+        }
 
     useEffect(() => {
         getFeedings();
         getSchedules();
         getHusbandryRecords();
-    }, [updateFlag])
+    }, [])
     
 
 
-    type Feeding = {
-    id: number
-    foodItem: String
-    time: String
-    }
-    type HusbandryRecord = {
-    id: number
-    reptileId: number,
-    length: number,
-    weight: number,
-    temperature: number,
-    humidity: number
-    }
-    type Schedule = {
-        id: number;
-        reptileId: number;
-        userId: number;
-        type: string;
-        description: string;
-        monday: boolean;
-        tuesday: boolean;
-        wednesday: boolean;
-        thursday: boolean;
-        friday: boolean;
-        saturday: boolean;
-        sunday: boolean;
-        createdAt: Date;
-        updatedAt: Date;
-      }
-    async function getHusbandryRecords(){
-        try {
-            const response = await api.get(`/reptile/${userId}/${reptileId}/husbandry`) as HusbandryRecord[];
-            setHusbandryData(response)
-        } catch (error) {
-            console.error(error);
-        }
-    }
 
-
-    async function getSchedules(){
-        try {
-            const response = await api.get(`/reptile/${reptileId}/schedules`) as Schedule[];
-            setScheduleData(response)
-            console.log(response)
-        } catch (error) {
-            console.error(error);
-        }
-    }
 
     async function createFeeding(){
         const newFeeding = {
@@ -93,8 +107,8 @@ export const Reptile = () => {
         }) as Feeding;
         setNewFeedingFoodItem("");
         console.log("item" + newFeedingFoodItem)
-        //setFeedData([...feedData, response]);
-        updateFlag = !updateFlag;
+        getFeedings();
+        // setUpdateFlag(prev => !prev);
     }
     async function createHusbandryRecord(){
         console.log(newHusbandryRecordLength)
@@ -110,12 +124,13 @@ export const Reptile = () => {
         const response = await api.post(`/reptile/${userId}/${reptileId}/husbandry`,{
             body: newHusbandryRecord
         }) as HusbandryRecord;
-        console.log(response);
         setNewHusbandryRecordLength("");
         setNewHusbandryRecordWeight("");
         setNewHusbandryRecordTemperature("");
         setNewHusbandryRecordHumidity("");
-        updateFlag = !updateFlag;
+        // setHusbandryData([...husbandryData, response]);
+        // setUpdateFlag(prev => !prev);
+        getHusbandryRecords();
     }
 
     async function createSchedule(){
@@ -145,17 +160,16 @@ export const Reptile = () => {
         setNewScheduleFriday(false);
         setNewScheduleSaturday(false);
         setNewScheduleSunday(false);
-        updateFlag = !updateFlag;
+        getSchedules();
+        // if(scheduleData.length > 0){
+        //     setScheduleData([...scheduleData, response]);
+        // }
+        // else{
+        // setScheduleData([response]);
+        // }
+        // setUpdateFlag(prev => !prev);
     }
-    async function getFeedings(){
-        try {
-            const response = await api.get(`/reptile/${userId}/${reptileId}/feeding`) as Feeding[];
-            console.log(response)
-            setFeedData(response)
-        } catch (error) {
-            console.error(error);
-        }
-    }
+
     
 
 
@@ -205,25 +219,25 @@ export const Reptile = () => {
                         Description: {schedule.description}
                     </li>
                     <li>
-                        Monday: {schedule.monday}
+                        Monday: {schedule.monday ? "true" : "false"}
                     </li>
                     <li>
-                        Tuesday: {schedule.tuesday}
+                        Tuesday: {schedule.tuesday ? "true" : "false"}
                     </li>
                     <li>
-                        Wednesday: {schedule.wednesday}
+                        Wednesday: {schedule.wednesday  ? "true" : "false"}
                     </li>
                     <li>
-                        Thursday: {schedule.thursday}
+                        Thursday: {schedule.thursday ? "true" : "false"}
                     </li>
                     <li>
-                        Friday: {schedule.friday}
+                        Friday: {schedule.friday ? "true" : "false"}
                     </li>
                     <li>
-                        Saturday: {schedule.saturday}
+                        Saturday: {schedule.saturday ? "true" : "false"}
                     </li>
                     <li>
-                        Sunday: {schedule.sunday}
+                        Sunday: {schedule.sunday ? "true" : "false"}
                     </li>
                     </ul>
                 ))}
@@ -249,9 +263,9 @@ export const Reptile = () => {
                             <li>
                                 Food Item: {feeding.foodItem}
                             </li>
-                            <li>
-                                Time: {feeding.time}
-                            </li>
+                            {/* <li>
+                                Time: {feeding.time ? feeding.time : "No Time"}
+                            </li> */}
                         </ul>
                     ))}
                 </div>

@@ -6,7 +6,6 @@ import { useApi } from "../hooks/useApi";
 export const Dashboard = () => {
     const navigate = useNavigate();
     const api = useApi();
-
     const [showAddReptileModal, setShowAddReptileModal] = useState(false);
     const [newReptileName, setNewReptileName] = useState("");
     const [schedulesData, setSchedulesData] = useState([] as Schedule[]);
@@ -14,29 +13,35 @@ export const Dashboard = () => {
     const [newReptileSex, setNewReptileSex] = useState('');
 
     const [reptileData, setReptileData] = useState([] as Reptile[]);
-
     const [userId, setUserId] = useState<number | null>(null);
+    const [count, setCount] = useState(0);
 
     useEffect(() => {
-        getUserId()
+        getUserId();
     }, []);
-
-    useEffect(() => {
-        console.log(userId);
-    }, [userId]);
 
     const getUserId = async () => {
         try {
             const response = await fetch("/me");
             const data = await response.json();
             const userId = data.user.id;
-            setUserId(userId);
+            getDay();
             getReptiles(userId);
             getSchedules(userId);
         } catch (error) {
             console.error(error);
         }
     };
+
+    const getDay = async () => {
+        try {
+            const today = new Date();
+            const dayOfWeek = today.getDay();
+        }catch (error) {
+            console.error(error);
+        }
+
+    }
 
     const getReptiles = async (userId: number) => {
         try {
@@ -52,7 +57,7 @@ export const Dashboard = () => {
         try {
             const response = await fetch("../" + userId + "/schedules");
             const data = await response.json();
-            setSchedulesData(data);
+            setSchedulesData(data.schedules);
         } catch (error) {
             console.error(error);
         }
@@ -138,16 +143,12 @@ export const Dashboard = () => {
 
             <h3>Your Schedule for Today:</h3>
             {schedulesData.length > 0 && schedulesData.map(schedules => (
+                ((schedules.sunday && count == 0) || (schedules.monday && count == 1) || (schedules.tuesday && count == 2)
+                    || (schedules.wednesday && count == 3) || (schedules.thursday && count == 4) || (schedules.friday && count == 5)
+                    || (schedules.saturday && count == 6)) &&
                 <ul key={schedules.id}>
                     <li>{schedules.type}</li>
                     <li>{schedules.description}</li>
-                    <li>{schedules.monday}</li>
-                    <li>{schedules.tuesday}</li>
-                    <li>{schedules.wednesday}</li>
-                    <li>{schedules.thursday}</li>
-                    <li>{schedules.friday}</li>
-                    <li>{schedules.saturday}</li>
-                    <li>{schedules.sunday}</li>
                 </ul>
             ))}
 
@@ -160,7 +161,7 @@ export const Dashboard = () => {
                             <div>
                                 {reptile.name}
                             </div>
-                            <button onClick={() => navigate(`../reptile/${userId}/${reptile.id}`, { replace: true })}>Select</button>
+                            <button onClick={() => navigate("../reptile/" + reptile.id, { replace: true })}>Select</button>
                             <button onClick={() => handleDeleteReptile(reptile.id)}>Delete</button>
                         </div>
 
