@@ -14,12 +14,22 @@ export const Reptile = () => {
     const [newHusbandryRecordWeight, setNewHusbandryRecordWeight] = useState("")
     const [newHusbandryRecordTemperature, setNewHusbandryRecordTemperature] = useState("")
     const [newHusbandryRecordHumidity, setNewHusbandryRecordHumidity] = useState("")
+    const [newFeedingFoodItem, setNewFeedingFoodItem] = useState("")
+    const [newScheduleType, setNewScheduleType] = useState("")
+    const [newScheduleDescription, setNewScheduleDescription] = useState("")
+    const [newScheduleMonday, setNewScheduleMonday] = useState(false)
+    const [newScheduleTuesday, setNewScheduleTuesday] = useState(false)
+    const [newScheduleWednesday, setNewScheduleWednesday] = useState(false)
+    const [newScheduleThursday, setNewScheduleThursday] = useState(false)
+    const [newScheduleFriday, setNewScheduleFriday] = useState(false)
+    const [newScheduleSaturday, setNewScheduleSaturday] = useState(false)
+    const [newScheduleSunday, setNewScheduleSunday] = useState(false)
+
     useEffect(() => {
-        console.log(userId)
         getFeedings();
         getHusbandryRecords();
         getSchedules();
-    }, [])
+    }, [scheduleData, feedData, husbandryData])
     
 
 
@@ -53,21 +63,28 @@ export const Reptile = () => {
         updatedAt: Date;
       }
     function getHusbandryRecords(){
-    api.get('/husbandry')
-    .then(response => response.json())
-    .then(data => setHusbandryData((prevHusbandryData) => [...prevHusbandryData, data as HusbandryRecord]))
+    api.get(`/reptile/${userId}/${reptileId}/husbandry`)
+    .then(response => console.log(response))
+    // .then(data => setHusbandryData(data as HusbandryRecord[]))
     };
 
 
     function getSchedules(){
-        fetch('/schedules')
+        api.get(`/reptile/${reptileId}/schedules`)
+        .then(response => console.log(response))
+        // .then(data => setScheduleData(data as Schedule[]))    
     }
-    // function updateReptile(updatedReptile: Reptile){
-    //     api.put('http://localhost:3000/reptile/' + id + '/' + reptileId,{body: JSON.stringify(updatedReptile)})
-    // }
-    function createFeeding(newFeeding: Feeding){
-        api.post('/feeding',{body: JSON.stringify(newFeeding)
-        })
+
+    async function createFeeding(){
+        const newFeeding = {
+            userId: userId,
+            reptileId: reptileId,
+            foodItem: newFeedingFoodItem
+        }
+        const response = await api.post(`/reptile/${userId}/${reptileId}/feeding`,{body: newFeeding
+        }) as Feeding;
+        setNewFeedingFoodItem("");
+        setFeedData([...feedData, response]);
     }
     async function createHusbandryRecord(){
         console.log(newHusbandryRecordLength)
@@ -83,79 +100,167 @@ export const Reptile = () => {
         const response = await api.post(`/reptile/${userId}/${reptileId}/husbandry`,{
             body: newHusbandryRecord
         }) as HusbandryRecord;
-
-        // const newRecord = {
-
-        //     id: response.id,
-        //     reptileId: response.reptileId as number,
-        //     length: response.length as number,
-        //     weight: response.weight as number,
-        //     temperature: response.temperature as number,
-        //     humidity: response.humidity as number
-        // }
+        setNewHusbandryRecordLength("");
+        setNewHusbandryRecordWeight("");
+        setNewHusbandryRecordTemperature("");
+        setNewHusbandryRecordHumidity("");
         setHusbandryData([...husbandryData, response]);
     }
 
-    function createSchedule(newSchedule: Schedule){
-        api.post("/schedules",{
-            body: JSON.stringify(newSchedule)
-        })
+    async function createSchedule(){
+        const newSchedule = {
+            reptileId: reptileId,
+            userId: userId,
+            type: newScheduleType,
+            description: newScheduleDescription,
+            monday: newScheduleMonday,
+            tuesday: newScheduleTuesday,
+            wednesday: newScheduleWednesday,
+            thursday: newScheduleThursday,
+            friday: newScheduleFriday,
+            saturday: newScheduleSaturday,
+            sunday: newScheduleSunday
+        }
+
+        const response = await api.post(`/reptile/${reptileId}/schedules`,{
+            body: newSchedule
+        }) as Schedule;
+        setNewScheduleDescription("");
+        setNewScheduleType("");
+        setNewScheduleMonday(false);
+        setNewScheduleTuesday(false);
+        setNewScheduleWednesday(false);
+        setNewScheduleThursday(false);
+        setNewScheduleFriday(false);
+        setNewScheduleSaturday(false);
+        setNewScheduleSunday(false);
+        setScheduleData([...scheduleData, response]);
     }
     function getFeedings(){
-    api.get('/feeding')
-    .then(data => setFeedData((prevFeedData) => [...prevFeedData, data as Feeding]))};
+    api.get(`/reptile/${userId}/${reptileId}/feeding`)
+    .then(data => setFeedData(data as Feeding[]))};
 
 
+    function handleHusbandryData(){
+        if (husbandryData.length > 0){
+            return (
+                <div>
+                <h1>Husbandry Data</h1>
+                {husbandryData.map((husbandry,index) => (
+                    <ul key ={index}>
+                        <li>
+                            Length: {husbandry.length}
+                        </li>
+                        <li>
+                            Weight: {husbandry.weight}
+                        </li>
+                        <li>
+                            Temperature: {husbandry.temperature}
+                        </li>
+                        <li>
+                            Humidity: {husbandry.humidity}
+                        </li>
+                    </ul>
+                ))}
+                </div>
+            )
+        }
+        else{
+            return (
+                <div>
+                    <h1>No Husbandry Data</h1>
+                </div>
+            )
+        }
+    }
+    function handleScheduleData(){
+        if(scheduleData.length > 0 && scheduleData){
+            return (
+                <div>
+                    <h1>Schedule Data</h1>
+                {scheduleData.map((schedule) => (
+                    <ul>
+                    <li>
+                        Type: {schedule.type}
+                    </li>
+                    <li>
+                        Description: {schedule.description}
+                    </li>
+                    <li>
+                        Monday: {schedule.monday}
+                    </li>
+                    <li>
+                        Tuesday: {schedule.tuesday}
+                    </li>
+                    <li>
+                        Wednesday: {schedule.wednesday}
+                    </li>
+                    <li>
+                        Thursday: {schedule.thursday}
+                    </li>
+                    <li>
+                        Friday: {schedule.friday}
+                    </li>
+                    <li>
+                        Saturday: {schedule.saturday}
+                    </li>
+                    <li>
+                        Sunday: {schedule.sunday}
+                    </li>
+                    </ul>
+                ))}
+                </div>
 
+                    )
+        }else{
+            return (
+                <div>
+                    <h1>No Schedule Data</h1>
+                </div>
+            )
+        }
+    }
+    function handleFeedingData(){
+        if(feedData.length > 0){
+            return(
+                <div>
+                    <h1>Feeding Data</h1>
+                    {feedData.map((feeding) => (
+                        <ul>
+                            <li>
+                                Food Item: {feeding.foodItem}
+                            </li>
+                            <li>
+                                Time: {feeding.time}
+                            </li>
+                        </ul>
+                    ))}
+                </div>
+            )
+                    }
+        else{
+            return(
+                <div>
+                    <h1>No Feeding Data</h1>
+                </div>
+            )
+        }
+    }
     return (
         <div>
         <h1>Reptile Page!</h1>
         <div>
-            <h1>Feeding Data</h1>
-            <ul>
-            {feedData.length > 0 && feedData && feedData?.map(feed => (
-                <li key={feed.id}>
-                    {feed.foodItem} {feed.time}
-                </li>
-                ))}
-            </ul>
+            {handleFeedingData()}
         </div>
         <div>
-            <h1>Husbandry Data</h1>
-            <ul>
-            {husbandryData.length > 0 && husbandryData && husbandryData?.map(husbandry => (
-                <li key={husbandry.id}>
-                    {husbandry.length} {husbandry.weight} {husbandry.temperature} {husbandry.humidity}
-                </li>
-                ))}
-            </ul>
-            </div>
-            <div>
-                <h1>Schedules</h1>
-                <ul>
-                {scheduleData.length > 0 && scheduleData.map(schedule => (
-                    <li key={schedule.id}>
-                        {schedule.type} {schedule.description} {schedule.monday} {schedule.tuesday} {schedule.wednesday} {schedule.thursday} {schedule.friday} {schedule.saturday} {schedule.sunday}
-                    </li>
-                    ))}
-                </ul>
-                </div>
-                {/* <div>
-                    <h1>Update Reptile</h1>
-                    <form>
-                        <label>
-                            Name:
-                            <input type="text" name="name" />
-                        </label>
-                        <label>
-                            Species:
-                            <input type="text" name="species" />
-                        </label>
-                        </form>
-                </div> */}
+            {handleHusbandryData()}
+        </div>
+        <div>
+            {handleScheduleData()}
+        </div>
                 <div>
                     <h1>Create Feeding</h1>
-                    <form>
+                    <div>
                         <label>
                             Food Item:
                             <input type="text" name="foodItem" />
@@ -164,7 +269,8 @@ export const Reptile = () => {
                             Time:
                             <input type="text" name="time" />
                         </label>
-                        </form>
+                        <button onClick={createFeeding}>Create Feeding</button>
+                        </div>
                 </div>
                 <div>
                     <h1>Create Husbandry Record</h1>
@@ -190,49 +296,40 @@ export const Reptile = () => {
                     </div>
                     <div>
                         <h1>Create Schedule</h1>
-                        <form>
+                        <div>
                             <label>
-                                Type:
-                                <input type="text" name="type" />
+                                Monday
+                        <input type='checkbox' checked={newScheduleMonday} onChange={e => setNewScheduleMonday(e.target.checked)}/>
                             </label>
                             <label>
-                                Description:
-                                <input type="text" name="description" />
+                                Tuesday
+                    <input type='checkbox' checked={newScheduleTuesday} onChange={e => setNewScheduleTuesday(e.target.checked)}/>
                             </label>
-                            </form>
+                            <label>
+                                Wednesday
+                    <input type='checkbox' checked={newScheduleWednesday} onChange={e => setNewScheduleWednesday(e.target.checked)}/>
+                            </label>
+                            <label>
+                                Thursday
+                    <input type='checkbox' checked={newScheduleThursday} onChange={e => setNewScheduleThursday(e.target.checked)}/>
+                            </label>
+                            <label>
+                                Friday
+                    <input type='checkbox' checked={newScheduleFriday} onChange={e => setNewScheduleFriday(e.target.checked)}/>
+                            </label>
+                            <label>
+                                Saturday
+                    <input type='checkbox' checked={newScheduleSaturday} onChange={e => setNewScheduleSaturday(e.target.checked)}/>
+                            </label>
+                            <label>
+                                Sunday
+                    <input type='checkbox' checked={newScheduleSunday} onChange={e => setNewScheduleSunday(e.target.checked)}/>
+                            </label>
+                            <button onClick={createSchedule}>Add</button>
+                            </div>
                             </div>
                         
 
         </div>
     )
 }
-
-
-
-//   export const App = (id: String, reptileId: String) =>{
-
-//     useEffect(() => {
-//         getFeedings();
-//       }, []);
-
-
-
-
-
-
-
-//     return (
-//         <div>
-//             <div>
-//                 <h1>Reptile</h1>
-//             </div>
-//             <ul>
-//             {feedData?.map(feed => (
-//                 <li key={feed.id}>
-//                     {feed.foodItem} {feed.time}
-//                 </li>
-//               ))}
-//             </ul>
-//         </div>
-//     )
-// }

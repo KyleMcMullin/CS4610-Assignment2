@@ -284,7 +284,7 @@ app.get('/reptile/:userId', async (req, res) => {
 app.post('/reptile/:userId/:reptileId/schedules', async (req, res) => {
   const reptileId = parseInt(req.params.reptileId);
   const userId = parseInt(req.params.userId);
-  const { type, description, monday, tuesday, wednesday, thursday, friday, saturday, sunday } = req.body as Schedule;
+  const { type, description, monday, tuesday, wednesday, thursday, friday, saturday, sunday } = req.body.body as Schedule;
   
   const schedule = await client.schedule.create({
     data: {
@@ -392,10 +392,9 @@ app.get('/reptile/:userId/:reptileId/husbandry', async (req, res) => {
 // #endregion
 
 // #region Feeding
-app.post('/reptile/:userId/:id/feeding', async (req, res) => {
-const feeding = req.body;
-const foodItem = req.body.foodItem;
-const reptileId = parseInt(req.params.id);
+app.post('/reptile/:userId/:reptileId/feeding', async (req, res) => {
+const foodItem = req.body.body.foodItem;
+const reptileId = parseInt(req.params.reptileId);
 const userId = parseInt(req.params.userId);
 const reptile = await client.reptile.findFirst({
   where: {
@@ -422,9 +421,8 @@ res.json(newFeeding);
 });
 
 
-app.get('/reptile/:userId/:id/feeding', async (req, res) => {
-  const feeding = req.body;
-  const reptileId = parseInt(req.params.id);
+app.get('/reptile/:userId/:reptileId/feeding', async (req, res) => {
+  const reptileId = parseInt(req.params.reptileId);
   const userId = parseInt(req.params.userId);
   const reptile = await client.reptile.findFirst({
     where: {
